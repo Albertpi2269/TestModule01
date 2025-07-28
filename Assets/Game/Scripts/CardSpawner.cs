@@ -1,45 +1,63 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
 
 public class CardSpawner : MonoBehaviour
 {
     public GameObject cardPrefab;
-    public Transform gridParent;
-    public Sprite[] cardImages;
-    public MemoryGameManager manager; // Drag your GameManager here
+    public Transform parent; // Grid layout parent (GridLayoutGroup)
+    public List<Sprite> cardImages; // Add 8 unique images in Inspector
+    public MemoryGameManager manager; // Drag your GameManager GameObject here
 
-    void Start()
+    private void Start()
     {
         SpawnCards();
     }
 
     void SpawnCards()
     {
-        List<Sprite> imagePool = new List<Sprite>();
+        if (cardImages.Count < 8)
+        {
+            Debug.LogError("You need at least 8 unique images.");
+            return;
+        }
 
-        // Duplicate for pairs
+        List<Sprite> allCardSprites = new List<Sprite>();
         foreach (Sprite img in cardImages)
         {
-            imagePool.Add(img);
-            imagePool.Add(img);
+            allCardSprites.Add(img);
+            allCardSprites.Add(img); // make pairs
         }
 
         // Shuffle
-        for (int i = 0; i < imagePool.Count; i++)
+        for (int i = 0; i < allCardSprites.Count; i++)
         {
-            Sprite temp = imagePool[i];
-            int randIndex = Random.Range(i, imagePool.Count);
-            imagePool[i] = imagePool[randIndex];
-            imagePool[randIndex] = temp;
+            Sprite temp = allCardSprites[i];
+            int randomIndex = Random.Range(i, allCardSprites.Count);
+            allCardSprites[i] = allCardSprites[randomIndex];
+            allCardSprites[randomIndex] = temp;
         }
 
-        // Instantiate and assign
+        // Instantiate cards
         for (int i = 0; i < 16; i++)
         {
-            GameObject newCard = Instantiate(cardPrefab, gridParent);
+            GameObject newCard = Instantiate(cardPrefab, parent);
             CardFlipper flipper = newCard.GetComponent<CardFlipper>();
-            flipper.SetCardImage(imagePool[i], manager);
+
+            flipper.SetCard(allCardSprites[i], manager);
+
+            // Resize images
+            Image[] images = newCard.GetComponentsInChildren<Image>();
+            foreach (Image img in images)
+            {
+                RectTransform rt = img.GetComponent<RectTransform>();
+                rt.anchorMin = Vector2.zero;
+                rt.anchorMax = Vector2.one;
+                rt.offsetMin = Vector2.zero;
+                rt.offsetMax = Vector2.zero;
+            }
+
+            newCard.GetComponent<RectTransform>().localScale = Vector3.one;
         }
     }
 }

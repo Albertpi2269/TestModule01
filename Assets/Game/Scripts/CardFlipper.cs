@@ -3,32 +3,67 @@ using UnityEngine.UI;
 
 public class CardFlipper : MonoBehaviour
 {
-    public Image cardImage; // Drag the Image component that shows the sprite
+    public Image cardImage;
+    public Image coverImage;
+
     private Sprite hiddenImage;
     private MemoryGameManager gameManager;
     private bool isFlipped = false;
     private Button button;
 
+    [Header("Animation Settings")]
+    public Animator animator;
+    public float flipDelay = 0.5f;
+
     void Start()
     {
         button = GetComponent<Button>();
         button.onClick.AddListener(FlipCard);
+
+        if (animator == null)
+            animator = GetComponent<Animator>();
     }
 
-    public void SetCardImage(Sprite image, MemoryGameManager manager)
+    public void SetCard(Sprite image, MemoryGameManager manager)
     {
         hiddenImage = image;
         gameManager = manager;
-        cardImage.enabled = false; // hide image initially
+
+        if (cardImage != null)
+            cardImage.sprite = hiddenImage;
+
+        if (coverImage != null)
+            coverImage.enabled = true;
+
+        isFlipped = false;
+
+        // Reset animator states
+        if (animator != null)
+        {
+            animator.SetBool("IsFlipped", false);
+            animator.SetBool("IsFlippingBack", false);
+        }
     }
 
     void FlipCard()
     {
-        if (isFlipped || !gameManager.CanFlip(this)) return;
+        if (isFlipped || gameManager == null || !gameManager.CanFlip(this))
+            return;
 
         isFlipped = true;
-        cardImage.sprite = hiddenImage;
-        cardImage.enabled = true;
+
+        if (animator != null)
+        {
+            animator.SetBool("IsFlipped", true);
+        }
+
+        Invoke(nameof(ShowCard), flipDelay);
+    }
+
+    void ShowCard()
+    {
+        if (coverImage != null)
+            coverImage.enabled = false;
 
         gameManager.CardFlipped(this);
     }
@@ -36,7 +71,23 @@ public class CardFlipper : MonoBehaviour
     public void HideCard()
     {
         isFlipped = false;
-        cardImage.enabled = false;
+
+        if (coverImage != null)
+            coverImage.enabled = true;
+
+        if (animator != null)
+        {
+            animator.SetBool("IsFlippingBack", true);
+            Invoke(nameof(ResetFlipBack), flipDelay);
+        }
+    }
+
+    void ResetFlipBack()
+    {
+        if (animator != null)
+        {
+            animator.SetBool("IsFlippingBack", false);
+        }
     }
 
     public Sprite GetCardImage()
