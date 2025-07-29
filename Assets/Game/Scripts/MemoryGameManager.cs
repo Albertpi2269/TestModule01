@@ -15,7 +15,7 @@ public class MemoryGameManager : MonoBehaviour
     public TextMeshProUGUI matchedText;
     public TextMeshProUGUI pendingText;
     public GameObject gameOverPanel;
-
+    public GameObject winPanel;
     public GameObject scoreboardPanel;
     public GameObject homeButton;
     public GameObject[] uiButtons;
@@ -23,11 +23,43 @@ public class MemoryGameManager : MonoBehaviour
     [Header("Match Animation Settings")]
     public float matchMoveSpeed = 2f;
 
+    [Header("Audio Clips")]
+    public AudioClip cardFlipSound;
+    public AudioClip matchSound;
+    public AudioClip notMatchSound;
+    public AudioClip gameOverSound;
+    public AudioClip winSound;
+    public AudioClip backgroundMusic;
+
+    [Header("Audio Sources")]
+    public AudioSource sfxSource; // For SFX
+    public AudioSource bgmSource; // For BGM
+
     void Start()
     {
+        StartBackgroundMusic();
         gameOverPanel.SetActive(false);
+        winPanel.SetActive(false);
         SetUIActive(true);
         UpdateUI();
+    }
+
+    void StartBackgroundMusic()
+    {
+        if (bgmSource != null && backgroundMusic != null)
+        {
+            bgmSource.clip = backgroundMusic;
+            bgmSource.loop = true;
+            bgmSource.Play();
+        }
+    }
+
+    public void PlaySFX(AudioClip clip)
+    {
+        if (clip != null && sfxSource != null)
+        {
+            sfxSource.PlayOneShot(clip);
+        }
     }
 
     public void CardFlipped(CardFlipper card)
@@ -35,6 +67,7 @@ public class MemoryGameManager : MonoBehaviour
         flippedCards.Add(card);
         totalFlips++;
 
+        PlaySFX(cardFlipSound);
         UpdateUI();
 
         if (flippedCards.Count == 2)
@@ -56,7 +89,8 @@ public class MemoryGameManager : MonoBehaviour
 
         if (flippedCards[0].GetCardImage() == flippedCards[1].GetCardImage())
         {
-            // Convert screen center to world position in canvas space
+            PlaySFX(matchSound);
+
             Vector3 centerScreen = Vector3.zero;
             RectTransformUtility.ScreenPointToWorldPointInRectangle(
                 flippedCards[0].GetComponent<RectTransform>(),
@@ -74,11 +108,14 @@ public class MemoryGameManager : MonoBehaviour
 
             if (matchCount == 8)
             {
+                PlaySFX(winSound);
                 GameOver(true);
             }
         }
         else
         {
+            PlaySFX(notMatchSound);
+
             foreach (CardFlipper card in flippedCards)
             {
                 card.HideCard();
@@ -89,6 +126,7 @@ public class MemoryGameManager : MonoBehaviour
 
         if (totalFlips >= maxFlipsAllowed && matchCount < 8)
         {
+            PlaySFX(gameOverSound);
             GameOver(false);
         }
 
@@ -111,7 +149,16 @@ public class MemoryGameManager : MonoBehaviour
 
     void GameOver(bool win)
     {
+        if (bgmSource != null && bgmSource.isPlaying)
+            bgmSource.Stop();
+
         gameOverPanel.SetActive(true);
+
+        if (win && winPanel != null)
+        {
+            winPanel.SetActive(true);
+        }
+
         SetUIActive(false);
     }
 
@@ -128,5 +175,20 @@ public class MemoryGameManager : MonoBehaviour
             if (btn != null)
                 btn.SetActive(isActive);
         }
+    }
+
+    // Call this when restarting the game
+    public void RestartGame()
+    {
+        matchCount = 0;
+        totalFlips = 0;
+        flippedCards.Clear();
+
+        gameOverPanel.SetActive(false);
+        winPanel.SetActive(false);
+
+        SetUIActive(true);
+        UpdateUI();
+        StartBackgroundMusic();
     }
 }
