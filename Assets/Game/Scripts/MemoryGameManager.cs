@@ -7,7 +7,6 @@ using UnityEngine.UI;
 public class MemoryGameManager : MonoBehaviour
 {
     private List<CardFlipper> flippedCards = new List<CardFlipper>();
-
     private int matchCount = 0;
     private int totalFlips = 0;
     private const int maxFlipsAllowed = 32;
@@ -17,12 +16,17 @@ public class MemoryGameManager : MonoBehaviour
     public TextMeshProUGUI pendingText;
     public GameObject gameOverPanel;
 
-    public GameObject scoreboardPanel; // Panel with matched/pending texts
-    public GameObject homeButton;      // Home button (assign in Inspector)
+    public GameObject scoreboardPanel;
+    public GameObject homeButton;
+    public GameObject[] uiButtons;
+
+    [Header("Match Animation Settings")]
+    public float matchMoveSpeed = 2f;
 
     void Start()
     {
         gameOverPanel.SetActive(false);
+        SetUIActive(true);
         UpdateUI();
     }
 
@@ -52,25 +56,32 @@ public class MemoryGameManager : MonoBehaviour
 
         if (flippedCards[0].GetCardImage() == flippedCards[1].GetCardImage())
         {
+            // Convert screen center to world position in canvas space
+            Vector3 centerScreen = Vector3.zero;
+            RectTransformUtility.ScreenPointToWorldPointInRectangle(
+                flippedCards[0].GetComponent<RectTransform>(),
+                new Vector2(Screen.width / 2f, Screen.height / 2f),
+                Camera.main,
+                out centerScreen
+            );
+
             foreach (CardFlipper card in flippedCards)
             {
-                Destroy(card.gameObject);
+                card.MoveToCenterAndDestroy(centerScreen, matchMoveSpeed);
             }
 
             matchCount++;
-            Debug.Log("Match Count: " + matchCount);
 
             if (matchCount == 8)
             {
-                Debug.Log("? You Win!");
-                gameOverPanel.SetActive(true);
+                GameOver(true);
             }
         }
         else
         {
             foreach (CardFlipper card in flippedCards)
             {
-                card.HideCard(); // Flip back
+                card.HideCard();
             }
         }
 
@@ -78,8 +89,7 @@ public class MemoryGameManager : MonoBehaviour
 
         if (totalFlips >= maxFlipsAllowed && matchCount < 8)
         {
-            Debug.Log("? Game Over! You used all attempts.");
-            gameOverPanel.SetActive(true);
+            GameOver(false);
         }
 
         UpdateUI();
@@ -89,12 +99,6 @@ public class MemoryGameManager : MonoBehaviour
     {
         bool isGameOver = gameOverPanel.activeSelf;
 
-        if (scoreboardPanel != null)
-            scoreboardPanel.SetActive(!isGameOver);
-
-        if (homeButton != null)
-            homeButton.SetActive(!isGameOver);
-
         if (!isGameOver)
         {
             if (matchedText != null)
@@ -102,6 +106,27 @@ public class MemoryGameManager : MonoBehaviour
 
             if (pendingText != null)
                 pendingText.text = "Flips Left: " + ((maxFlipsAllowed - totalFlips) / 2);
+        }
+    }
+
+    void GameOver(bool win)
+    {
+        gameOverPanel.SetActive(true);
+        SetUIActive(false);
+    }
+
+    void SetUIActive(bool isActive)
+    {
+        if (scoreboardPanel != null)
+            scoreboardPanel.SetActive(isActive);
+
+        if (homeButton != null)
+            homeButton.SetActive(isActive);
+
+        foreach (GameObject btn in uiButtons)
+        {
+            if (btn != null)
+                btn.SetActive(isActive);
         }
     }
 }

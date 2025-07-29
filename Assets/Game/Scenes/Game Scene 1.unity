@@ -272,7 +272,7 @@ RectTransform:
   m_GameObject: {fileID: 472826673}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 2.5, z: 1}
+  m_LocalScale: {x: 0.69, y: 2.95, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1012207062}
@@ -280,7 +280,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -877, y: 327}
+  m_AnchoredPosition: {x: -842, y: 327}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &472826675
@@ -326,7 +326,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 472826676}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1012207063}
+        m_TargetAssemblyTypeName: SceneButtonManager, Assembly-CSharp
+        m_MethodName: OnBackToHomeButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &472826676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -347,7 +359,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1466037946, guid: 0ee8b7e0ae014704c9fe6dc32fec2f49, type: 3}
+  m_Sprite: {fileID: -1950403383, guid: 1617fc7019509f6459aa9843b45f23dc, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1010,7 +1022,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 790936635}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1012207063}
+        m_TargetAssemblyTypeName: SceneButtonManager, Assembly-CSharp
+        m_MethodName: OnBackToHomeButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &790936635
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1031,7 +1055,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1795067878, guid: 0ee8b7e0ae014704c9fe6dc32fec2f49, type: 3}
+  m_Sprite: {fileID: -1950403383, guid: 1617fc7019509f6459aa9843b45f23dc, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1101,15 +1125,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 0
+    m_Left: 13
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 16.1, y: 29.4}
-  m_Spacing: {x: 0.9, y: 2.3}
+  m_CellSize: {x: 10.7, y: 98.1}
+  m_Spacing: {x: 7.09, y: -68.5}
   m_Constraint: 1
   m_ConstraintCount: 4
 --- !u!114 &902580136
@@ -1400,7 +1424,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1242446538}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1012207063}
+        m_TargetAssemblyTypeName: SceneButtonManager, Assembly-CSharp
+        m_MethodName: OnRestartButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1242446538
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1421,7 +1457,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1730887692, guid: 0ee8b7e0ae014704c9fe6dc32fec2f49, type: 3}
+  m_Sprite: {fileID: 808486714, guid: 1617fc7019509f6459aa9843b45f23dc, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1875,7 +1911,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bf2a8719c5c944438d564147107d876, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardPrefab: {fileID: 9101922673570170814, guid: 08e224710bd004a4f94e2eed26b43d0f, type: 3}
+  cardPrefab: {fileID: 5774384783171100694, guid: 08e224710bd004a4f94e2eed26b43d0f, type: 3}
   parent: {fileID: 902580134}
   cardImages:
   - {fileID: -1172894054, guid: e9adf845ac384034db131b76290d8ddc, type: 3}
@@ -1941,3 +1977,4 @@ MonoBehaviour:
   gameOverPanel: {fileID: 986732679}
   scoreboardPanel: {fileID: 228939901}
   homeButton: {fileID: 472826673}
+  uiButtons: []

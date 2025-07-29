@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class CardFlipper : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class CardFlipper : MonoBehaviour
     private Sprite hiddenImage;
     private MemoryGameManager gameManager;
     private bool isFlipped = false;
+    private bool isAnimating = false;
     private Button button;
 
     [Header("Animation Settings")]
@@ -36,8 +38,8 @@ public class CardFlipper : MonoBehaviour
             coverImage.enabled = true;
 
         isFlipped = false;
+        isAnimating = false;
 
-        // Reset animator states
         if (animator != null)
         {
             animator.SetBool("IsFlipped", false);
@@ -47,10 +49,10 @@ public class CardFlipper : MonoBehaviour
 
     void FlipCard()
     {
-        if (isFlipped || gameManager == null || !gameManager.CanFlip(this))
+        if (isFlipped || isAnimating || gameManager == null || !gameManager.CanFlip(this))
             return;
 
-        isFlipped = true;
+        isAnimating = true;
 
         if (animator != null)
         {
@@ -65,12 +67,18 @@ public class CardFlipper : MonoBehaviour
         if (coverImage != null)
             coverImage.enabled = false;
 
+        isFlipped = true;
+        isAnimating = false;
+
         gameManager.CardFlipped(this);
     }
 
     public void HideCard()
     {
-        isFlipped = false;
+        if (isAnimating)
+            return;
+
+        isAnimating = true;
 
         if (coverImage != null)
             coverImage.enabled = true;
@@ -78,8 +86,9 @@ public class CardFlipper : MonoBehaviour
         if (animator != null)
         {
             animator.SetBool("IsFlippingBack", true);
-            Invoke(nameof(ResetFlipBack), flipDelay);
         }
+
+        Invoke(nameof(ResetFlipBack), flipDelay);
     }
 
     void ResetFlipBack()
@@ -87,11 +96,50 @@ public class CardFlipper : MonoBehaviour
         if (animator != null)
         {
             animator.SetBool("IsFlippingBack", false);
+            animator.SetBool("IsFlipped", false);
         }
+
+        isFlipped = false;
+        isAnimating = false;
     }
 
     public Sprite GetCardImage()
     {
         return hiddenImage;
+    }
+
+    public bool IsFlipped()
+    {
+        return isFlipped;
+    }
+
+    public void MoveToCenterAndDestroy(Vector3 worldTarget, float speed)
+    {
+        StartCoroutine(MoveAndFadeOut(worldTarget, speed));
+    }
+
+    IEnumerator MoveAndFadeOut(Vector3 targetPosition, float speed)
+    {
+        RectTransform rt = GetComponent<RectTransform>();
+        Vector3 start = rt.position;
+        Vector3 startScale = rt.localScale;
+
+        CanvasGroup canvasGroup = gameObject.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            canvasGroup = gameObject.AddComponent<CanvasGroup>();
+        }
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime * speed;
+            rt.position = Vector3.Lerp(start, targetPosition, t);
+            rt.localScale = Vector3.Lerp(startScale, Vector3.zero, t);
+            canvasGroup.alpha = Mathf.Lerp(1f, 0f, t);
+            yield return null;
+        }
+
+        Destroy(gameObject);
     }
 }

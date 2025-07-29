@@ -55,9 +55,13 @@ public class CardSpawner : MonoBehaviour
                 rt.anchorMax = Vector2.one;
                 rt.offsetMin = Vector2.zero;
                 rt.offsetMax = Vector2.zero;
+
+                // ?? Rotate 180 degrees on Y axis (flip face down)
+                img.rectTransform.localRotation = Quaternion.Euler(0, 0, 180);
             }
 
             newCard.GetComponent<RectTransform>().localScale = Vector3.one;
         }
     }
+
 }
