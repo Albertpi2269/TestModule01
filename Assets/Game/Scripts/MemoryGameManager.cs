@@ -1,3 +1,4 @@
+// Replace your existing script with this updated version
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +11,8 @@ public class MemoryGameManager : MonoBehaviour
     private int matchCount = 0;
     private int totalFlips = 0;
     private const int maxFlipsAllowed = 32;
+    private bool isGameOver = false;
+    private bool resumedFromLastState = false;
 
     [Header("UI")]
     public TextMeshProUGUI matchedText;
@@ -32,16 +35,41 @@ public class MemoryGameManager : MonoBehaviour
     public AudioClip backgroundMusic;
 
     [Header("Audio Sources")]
-    public AudioSource sfxSource; // For SFX
-    public AudioSource bgmSource; // For BGM
+    public AudioSource sfxSource;
+    public AudioSource bgmSource;
+
+    public bool IsResuming => resumedFromLastState;
 
     void Start()
     {
+        resumedFromLastState = PlayerPrefs.GetInt("ResumeFlag", 0) == 1;
+
+        if (resumedFromLastState)
+        {
+            LoadGameState();
+        }
+
         StartBackgroundMusic();
         gameOverPanel.SetActive(false);
         winPanel.SetActive(false);
         SetUIActive(true);
         UpdateUI();
+    }
+
+    void OnApplicationPause(bool pause)
+    {
+        if (pause && !isGameOver)
+        {
+            SaveGameState();
+        }
+    }
+
+    void OnApplicationQuit()
+    {
+        if (!isGameOver)
+        {
+            SaveGameState();
+        }
     }
 
     void StartBackgroundMusic()
@@ -105,11 +133,13 @@ public class MemoryGameManager : MonoBehaviour
             }
 
             matchCount++;
+            flippedCards.Clear();
 
             if (matchCount == 8)
             {
                 PlaySFX(winSound);
                 GameOver(true);
+                yield break;
             }
         }
         else
@@ -120,9 +150,9 @@ public class MemoryGameManager : MonoBehaviour
             {
                 card.HideCard();
             }
-        }
 
-        flippedCards.Clear();
+            flippedCards.Clear();
+        }
 
         if (totalFlips >= maxFlipsAllowed && matchCount < 8)
         {
@@ -135,8 +165,6 @@ public class MemoryGameManager : MonoBehaviour
 
     void UpdateUI()
     {
-        bool isGameOver = gameOverPanel.activeSelf;
-
         if (!isGameOver)
         {
             if (matchedText != null)
@@ -149,6 +177,8 @@ public class MemoryGameManager : MonoBehaviour
 
     void GameOver(bool win)
     {
+        isGameOver = true;
+
         if (bgmSource != null && bgmSource.isPlaying)
             bgmSource.Stop();
 
@@ -160,6 +190,10 @@ public class MemoryGameManager : MonoBehaviour
         }
 
         SetUIActive(false);
+
+        PlayerPrefs.DeleteAll();
+
+        Debug.Log("Game Over. Save data cleared.");
     }
 
     void SetUIActive(bool isActive)
@@ -177,12 +211,12 @@ public class MemoryGameManager : MonoBehaviour
         }
     }
 
-    // Call this when restarting the game
     public void RestartGame()
     {
         matchCount = 0;
         totalFlips = 0;
         flippedCards.Clear();
+        isGameOver = false;
 
         gameOverPanel.SetActive(false);
         winPanel.SetActive(false);
@@ -190,5 +224,26 @@ public class MemoryGameManager : MonoBehaviour
         SetUIActive(true);
         UpdateUI();
         StartBackgroundMusic();
+
+        PlayerPrefs.DeleteAll();
+
+        Debug.Log("Game restarted and all save data cleared.");
+    }
+
+    public void SaveGameState()
+    {
+        PlayerPrefs.SetInt("SavedMatchCount", matchCount);
+        PlayerPrefs.SetInt("SavedTotalFlips", totalFlips);
+        PlayerPrefs.SetInt("ResumeFlag", 1);
+        PlayerPrefs.Save();
+
+        Debug.Log("Game Saved. MatchCount: " + matchCount + ", TotalFlips: " + totalFlips);
+    }
+
+    void LoadGameState()
+    {
+        matchCount = PlayerPrefs.GetInt("SavedMatchCount", 0);
+        totalFlips = PlayerPrefs.GetInt("SavedTotalFlips", 0);
+        Debug.Log("Loaded MatchCount: " + matchCount + ", TotalFlips: " + totalFlips);
     }
 }

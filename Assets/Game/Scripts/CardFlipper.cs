@@ -24,6 +24,15 @@ public class CardFlipper : MonoBehaviour
 
         if (animator == null)
             animator = GetComponent<Animator>();
+
+        // Hide cursor on mobile platforms
+#if UNITY_ANDROID || UNITY_IOS
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+#else
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+#endif
     }
 
     public void SetCard(Sprite image, MemoryGameManager manager)
