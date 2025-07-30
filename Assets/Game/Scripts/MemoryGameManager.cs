@@ -1,4 +1,3 @@
-// Replace your existing script with this updated version
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -98,42 +97,41 @@ public class MemoryGameManager : MonoBehaviour
         PlaySFX(cardFlipSound);
         UpdateUI();
 
-        if (flippedCards.Count == 2)
+        if (flippedCards.Count >= 2 && flippedCards.Count % 2 == 0)
         {
-            StartCoroutine(CheckMatch());
+            StartCoroutine(CheckPair(flippedCards[flippedCards.Count - 2], flippedCards[flippedCards.Count - 1]));
+        }
+
+        if (totalFlips >= maxFlipsAllowed && matchCount < 8)
+        {
+            PlaySFX(gameOverSound);
+            GameOver(false);
         }
     }
 
-    public bool CanFlip(CardFlipper card)
-    {
-        return flippedCards.Count < 2 &&
-               !flippedCards.Contains(card) &&
-               totalFlips < maxFlipsAllowed;
-    }
-
-    IEnumerator CheckMatch()
+    IEnumerator CheckPair(CardFlipper card1, CardFlipper card2)
     {
         yield return new WaitForSeconds(0.5f);
 
-        if (flippedCards[0].GetCardImage() == flippedCards[1].GetCardImage())
+        if (card1.GetCardImage() == card2.GetCardImage())
         {
             PlaySFX(matchSound);
 
             Vector3 centerScreen = Vector3.zero;
             RectTransformUtility.ScreenPointToWorldPointInRectangle(
-                flippedCards[0].GetComponent<RectTransform>(),
+                card1.GetComponent<RectTransform>(),
                 new Vector2(Screen.width / 2f, Screen.height / 2f),
                 Camera.main,
                 out centerScreen
             );
 
-            foreach (CardFlipper card in flippedCards)
-            {
-                card.MoveToCenterAndDestroy(centerScreen, matchMoveSpeed);
-            }
+            card1.MoveToCenterAndDestroy(centerScreen, matchMoveSpeed);
+            card2.MoveToCenterAndDestroy(centerScreen, matchMoveSpeed);
 
             matchCount++;
-            flippedCards.Clear();
+
+            flippedCards.Remove(card1);
+            flippedCards.Remove(card2);
 
             if (matchCount == 8)
             {
@@ -145,22 +143,22 @@ public class MemoryGameManager : MonoBehaviour
         else
         {
             PlaySFX(notMatchSound);
+            card1.HideCard();
+            card2.HideCard();
 
-            foreach (CardFlipper card in flippedCards)
-            {
-                card.HideCard();
-            }
+            card1.SetFlipped(false);
+            card2.SetFlipped(false);
 
-            flippedCards.Clear();
-        }
-
-        if (totalFlips >= maxFlipsAllowed && matchCount < 8)
-        {
-            PlaySFX(gameOverSound);
-            GameOver(false);
+            flippedCards.Remove(card1);
+            flippedCards.Remove(card2);
         }
 
         UpdateUI();
+    }
+
+    public bool CanFlip(CardFlipper card)
+    {
+        return !card.IsFlipped() && !flippedCards.Contains(card) && totalFlips < maxFlipsAllowed;
     }
 
     void UpdateUI()

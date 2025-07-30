@@ -25,7 +25,6 @@ public class CardFlipper : MonoBehaviour
         if (animator == null)
             animator = GetComponent<Animator>();
 
-        // Hide cursor on mobile platforms
 #if UNITY_ANDROID || UNITY_IOS
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
@@ -120,6 +119,11 @@ public class CardFlipper : MonoBehaviour
     public bool IsFlipped()
     {
         return isFlipped;
+    }
+
+    public void SetFlipped(bool value)
+    {
+        isFlipped = value;
     }
 
     public void MoveToCenterAndDestroy(Vector3 worldTarget, float speed)
